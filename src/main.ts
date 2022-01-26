@@ -71,7 +71,7 @@ export async function main() {
 
 setInterval(() => {
   main();
-}, 15 * 60 * 100);
+}, 15 * 60 * 1000);
 
 const fastify = Fastify({ logger: true });
 
@@ -83,8 +83,10 @@ fastify.get('/leaderboard', (_, reply) => {
   const leaderboard = JSON.parse(
     fs.readFileSync('src/files/leaderboard.json', 'utf8'),
   );
-  reply.type('application/json').code(200)
-  return leaderboard;
+  reply.type('application/json').code(200).send({
+    lastUpdateAt: new Date().toISOString(),
+    leaderboard
+  })
 });
 
 fastify.listen(8080, (error) => {
