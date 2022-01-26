@@ -1,7 +1,8 @@
 import { Stake } from './types/staking';
 import { getStakes, getStakingConfig } from './utils/staking';
 import { getStakedAssets } from './utils/atomic';
-import * as fs from "fs"
+import Fastify from 'fastify';
+import * as fs from 'fs';
 interface StakingInfo {
   address: string;
   totalDMPPerDay: number;
@@ -10,22 +11,24 @@ interface StakingInfo {
 }
 
 export async function main() {
-  
   const stakes = await getStakes();
-  console.log("Get all stakes")
-  fs.writeFile("src/files/stakes.json", JSON.stringify(stakes), () => {
-    console.log("Staking data written successfully")
-  })
+  console.log('Get all stakes');
+  fs.writeFile('src/files/stakes.json', JSON.stringify(stakes), () => {
+    console.log('Staking data written successfully');
+  });
 
   const stakingConfigs = await getStakingConfig();
-  console.log("Get all staking configs")
+  console.log('Get all staking configs');
 
-  const stakedAssets = await getStakedAssets()
-  console.log("Get all staked assets")
-  fs.writeFile("src/files/staked-assets.json", JSON.stringify(stakedAssets), () => {
-    console.log("Staked assets written successfully")
-  })
-
+  const stakedAssets = await getStakedAssets();
+  console.log('Get all staked assets');
+  fs.writeFile(
+    'src/files/staked-assets.json',
+    JSON.stringify(stakedAssets),
+    () => {
+      console.log('Staked assets written successfully');
+    },
+  );
 
   const getDMPPerDay = (stake: Stake) => {
     let sum = 0;
@@ -53,17 +56,32 @@ export async function main() {
 
   const leaderboard: StakingInfo[] = [];
   for (const stake of stakes) {
-    const dmpPerDay = getDMPPerDay(stake)
+    const dmpPerDay = getDMPPerDay(stake);
     const entry = {
       address: stake.owner,
       totalDMPPerDay: dmpPerDay,
       totalStaked1D: stake.staked_nfts_1D.length,
       totalStakedLock: stake.staked_nfts_Fixed.length,
-    }
-    leaderboard.push(entry)
+    };
+    leaderboard.push(entry);
   }
 
-  fs.writeFileSync("src/files/leaderboard.json", JSON.stringify(leaderboard))
+  fs.writeFileSync('src/files/leaderboard.json', JSON.stringify(leaderboard));
 }
 
-main()
+setInterval(() => {
+  main();
+}, 15 * 60 * 100);
+
+const fastify = Fastify({ logger: true });
+fastify.get('/leaderboard', (_, reply) => {
+  const leaderboard = JSON.parse(
+    fs.readFileSync('src/files/leaderboard.json', 'utf8'),
+  );
+  reply.type('application/json').code(200)
+  return leaderboard;
+});
+
+fastify.listen(8080, (error) => {
+  if (error) throw error;
+});
