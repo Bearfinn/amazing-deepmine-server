@@ -74,6 +74,11 @@ setInterval(() => {
 }, 15 * 60 * 100);
 
 const fastify = Fastify({ logger: true });
+
+fastify.get('/', (_, reply) => {
+  reply.code(200).send("Welcome to Deepmine Stats Server")
+});
+
 fastify.get('/leaderboard', (_, reply) => {
   const leaderboard = JSON.parse(
     fs.readFileSync('src/files/leaderboard.json', 'utf8'),
