@@ -3,7 +3,7 @@ import fetch from "node-fetch"
 
 export const account = process.env.ACCOUNT as string;
 
-export const rpc = new JsonRpc(process.env.NEXT_PUBLIC_RPC_URL || "https://wax.pink.gg", { fetch });
+export const rpc = new JsonRpc(process.env.NEXT_PUBLIC_RPC_URL || "https://wax.eosphere.io", { fetch });
 export interface GetTableRowParams {
   json?: boolean;
   code?: string;

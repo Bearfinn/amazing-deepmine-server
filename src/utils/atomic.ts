@@ -50,3 +50,47 @@ export const getAssets = async (asset_ids: string[]): Promise<Asset[]> => {
   });
   return assets;
 };
+
+export const getAssetCount = async () => {
+  const res = await fetch(
+    `https://wax.api.atomicassets.io/atomicassets/v1/accounts/deepminestak`
+  );
+  const data = await res.json()
+  return Number(data.data.assets)
+}
+
+export const getStakedAssets = async (): Promise<Asset[]> => {
+  let result: any[] = []
+  let i = 1;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const params = {
+      owner: "deepminestak",
+      page: i,
+      limit: 1000,
+    };
+    const paramsString = Object.entries(params)
+      .map(([key, value]: [key: string, value: any]) => `${key}=${value}`)
+      .join("&");
+    const res = await fetch(
+      `https://wax.api.atomicassets.io/atomicassets/v1/assets?${paramsString}`
+    );
+    const data = await res.json();
+    result = result.concat(data.data)
+    
+    if (data.data.length < 1000) break;
+    i++
+  }
+
+  const assets = result.map((asset: any) => {
+    return {
+      asset_id: asset.asset_id,
+      template_id: asset.template.template_id,
+      name: asset.data.name,
+      rarity: asset.data.rarity,
+      type: asset.data.type,
+      src: asset.data.backimg,
+    };
+  });
+  return assets;
+};

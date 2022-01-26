@@ -27,3 +27,6 @@ build/
 
 # Misc
 .DS_Store
+
+# Written files
+src/files
