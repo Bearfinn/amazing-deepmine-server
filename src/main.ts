@@ -89,6 +89,6 @@ fastify.get('/leaderboard', (_, reply) => {
   })
 });
 
-fastify.listen(8080, (error) => {
+fastify.listen(process.env.PORT || 8080, (error) => {
   if (error) throw error;
 });
