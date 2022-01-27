@@ -11,9 +11,11 @@ interface StakingInfo {
 }
 
 export async function main() {
+  fs.writeFileSync("readme.txt", "This file is written to search for file location.")
+
   const stakes = await getStakes();
   console.log('Get all stakes');
-  fs.writeFile('src/files/stakes.json', JSON.stringify(stakes), () => {
+  fs.writeFile('stakes.json', JSON.stringify(stakes), () => {
     console.log('Staking data written successfully');
   });
 
@@ -23,7 +25,7 @@ export async function main() {
   const stakedAssets = await getStakedAssets();
   console.log('Get all staked assets');
   fs.writeFile(
-    'src/files/staked-assets.json',
+    'staked-assets.json',
     JSON.stringify(stakedAssets),
     () => {
       console.log('Staked assets written successfully');
@@ -66,9 +68,10 @@ export async function main() {
     leaderboard.push(entry);
   }
 
-  fs.writeFileSync('src/files/leaderboard.json', JSON.stringify(leaderboard));
+  fs.writeFileSync('leaderboard.json', JSON.stringify(leaderboard));
 }
 
+main();
 setInterval(() => {
   main();
 }, 15 * 60 * 1000);
@@ -81,7 +84,7 @@ fastify.get('/', (_, reply) => {
 
 fastify.get('/leaderboard', (_, reply) => {
   const leaderboard = JSON.parse(
-    fs.readFileSync('src/files/leaderboard.json', 'utf8'),
+    fs.readFileSync('./files/leaderboard.json', 'utf8'),
   );
   reply.type('application/json').code(200).send({
     lastUpdateAt: new Date().toISOString(),
