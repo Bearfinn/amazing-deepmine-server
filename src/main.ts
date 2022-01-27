@@ -84,7 +84,7 @@ fastify.get('/', (_, reply) => {
 
 fastify.get('/leaderboard', (_, reply) => {
   const leaderboard = JSON.parse(
-    fs.readFileSync('./files/leaderboard.json', 'utf8'),
+    fs.readFileSync('leaderboard.json', 'utf8'),
   );
   reply.type('application/json').code(200).send({
     lastUpdateAt: new Date().toISOString(),
