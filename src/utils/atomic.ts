@@ -6,6 +6,7 @@
 
 import { Asset } from "../types/staking";
 import fetch from "node-fetch";
+// import { logger } from "../utils/logger"
 
 export const getLowestPriceOfRarity = async (rarity: string) => {
   const params = {
@@ -72,11 +73,13 @@ export const getStakedAssets = async (): Promise<Asset[]> => {
     const paramsString = Object.entries(params)
       .map(([key, value]: [key: string, value: any]) => `${key}=${value}`)
       .join("&");
+    console.info(`Retrieving...`)
     const res = await fetch(
       `https://wax.api.atomicassets.io/atomicassets/v1/assets?${paramsString}`
     );
     const data = await res.json();
     result = result.concat(data.data)
+    console.info(`Retrieved ${data.data.length} records (${result.length} total)`)
     
     if (data.data.length < 1000) break;
     i++

@@ -79,6 +79,8 @@ setInterval(() => {
 const fastify = Fastify({ logger: true });
 
 fastify.get('/', (_, reply) => {
+  reply.header("Access-Control-Allow-Origin", "*");
+  reply.header("Access-Control-Allow-Methods", "GET");
   reply.code(200).send("Welcome to Deepmine Stats Server")
 });
 
@@ -86,6 +88,8 @@ fastify.get('/leaderboard', (_, reply) => {
   const leaderboard = JSON.parse(
     fs.readFileSync('leaderboard.json', 'utf8'),
   );
+  reply.header("Access-Control-Allow-Origin", "*");
+  reply.header("Access-Control-Allow-Methods", "GET");
   reply.type('application/json').code(200).send({
     lastUpdateAt: new Date().toISOString(),
     leaderboard

@@ -30,4 +30,8 @@ build/
 
 # Written files
 src/files
+leaderboard.json
+staked-assets.json
+stakes.json
+readme.txt
 .env
