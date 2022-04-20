@@ -1,7 +1,7 @@
 export interface StakedAsset {
   asset_id: string;
   time: number;
-  initial_stake_time: number;
+  initial_stake_time?: number;
 }
 
 export interface Stake {

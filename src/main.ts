@@ -1,8 +1,9 @@
-import { Stake } from './types/staking';
-import { getStakes, getStakingConfig } from './utils/staking';
-import { getStakedAssets } from './utils/atomic';
+// import { getStakedAssets } from './utils/atomic';
 import Fastify from 'fastify';
 import * as fs from 'fs';
+import { Stake } from './types/staking';
+import { getStakedAssets } from './utils/atomic';
+import { getCollectedDMPs, getStakes, getStakingConfig } from './utils/staking';
 interface StakingInfo {
   address: string;
   totalDMPPerDay: number;
@@ -12,6 +13,9 @@ interface StakingInfo {
 
 export async function main() {
   fs.writeFileSync("readme.txt", "This file is written to search for file location.")
+
+  // const stakes = _stakes as Stake[];
+  // const stakedAssets = _stakedAssets as Asset[];
 
   const stakes = await getStakes();
   console.log('Get all stakes');
@@ -31,6 +35,8 @@ export async function main() {
       console.log('Staked assets written successfully');
     },
   );
+
+  const collectedDMPs = await getCollectedDMPs();
 
   const getDMPPerDay = (stake: Stake) => {
     let sum = 0;
@@ -56,12 +62,46 @@ export async function main() {
     return sum;
   };
 
+  const getTotalDMP = (stake: Stake) => {
+    let sum = 0;
+    const nowInSeconds = Math.floor(Date.now() / 1000);
+
+    for (const lockedStake of stake.staked_nfts_Fixed) {
+      const timeSinceStaked = (nowInSeconds - lockedStake.time) / 60 / 60 / 24;
+      const template_id = stakedAssets.find(
+        (asset) => asset.asset_id === lockedStake.asset_id,
+      )?.template_id;
+      const config = stakingConfigs.find(
+        (stakingConfig) => stakingConfig.template_id.toString() === template_id,
+      );
+      sum += (Number(config?.reward.split(' ')[0] || 0) * 4) * timeSinceStaked;
+    }
+    for (const lockedStake of stake.staked_nfts_1D) {
+      const timeSinceStaked = (nowInSeconds - lockedStake.time) / 60 / 60 / 24;
+      const template_id = stakedAssets.find(
+        (asset) => asset.asset_id === lockedStake.asset_id,
+      )?.template_id;
+      const config = stakingConfigs.find(
+        (stakingConfig) => stakingConfig.template_id.toString() === template_id,
+      );
+      sum += Number(config?.reward.split(' ')[0] || 0) * timeSinceStaked;
+    }
+    return sum;
+  }
+
   const leaderboard: StakingInfo[] = [];
   for (const stake of stakes) {
     const dmpPerDay = getDMPPerDay(stake);
+    const uncollectedDMP = getTotalDMP(stake);
+    const collectedDMP = collectedDMPs.find((entry) => entry.owner === stake.owner);
+    const totalDMP = uncollectedDMP + collectedDMP;
+
     const entry = {
       address: stake.owner,
       totalDMPPerDay: dmpPerDay,
+      uncollectedDMP,
+      collectedDMP,
+      totalDMP,
       totalStaked1D: stake.staked_nfts_1D.length,
       totalStakedLock: stake.staked_nfts_Fixed.length,
     };
@@ -69,6 +109,7 @@ export async function main() {
   }
 
   fs.writeFileSync('leaderboard.json', JSON.stringify(leaderboard));
+  console.log("Completed")
 }
 
 main();

@@ -33,3 +33,8 @@ export const getStakingConfig = async (): Promise<StakingConfig[]> => {
   const rows = getDeepmineStakingData('stakingconf', {});
   return rows;
 };
+
+export const getCollectedDMPs = async (): Promise<any> => {
+  const rows = getDeepmineStakingData('collected', {});
+  return rows;
+}
