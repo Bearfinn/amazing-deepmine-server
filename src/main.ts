@@ -93,7 +93,8 @@ export async function main() {
   for (const stake of stakes) {
     const dmpPerDay = getDMPPerDay(stake);
     const uncollectedDMP = getTotalDMP(stake);
-    const collectedDMP = collectedDMPs.find((entry) => entry.owner === stake.owner);
+    const collectedDMPEntry = collectedDMPs.find((entry) => entry.owner === stake.owner)
+    const collectedDMP = collectedDMPEntry ? Number(collectedDMPEntry.quantity) : 0
     const totalDMP = uncollectedDMP + collectedDMP;
 
     const entry = {

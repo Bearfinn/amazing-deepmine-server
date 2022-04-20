@@ -35,6 +35,18 @@ export const getStakingConfig = async (): Promise<StakingConfig[]> => {
 };
 
 export const getCollectedDMPs = async (): Promise<any> => {
-  const rows = getDeepmineStakingData('collected', {});
-  return rows;
+  let result = [];
+  let next = null
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const rows = await getDeepmineStakingData('collected', {
+      lower_bound: next,
+      limit: 1000,
+    });
+    const last = rows.pop()
+    if (rows.length === 0) break;
+    result = [...result, ...rows]
+    next = last.owner
+  }
+  return result;
 }
